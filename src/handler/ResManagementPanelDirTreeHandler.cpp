@@ -71,25 +71,36 @@ void ResManagementPanelDirTreeHandler::Init()
     dir_tree_view_ = ui->dir_tree_view;
     dir_tree_view_->setModel(dir_tree_model_);
 
-	connect(dir_tree_view_, &QTreeView::clicked, this, &ResManagementPanelDirTreeHandler::OnDirTreeClicked);
+	connect(dir_tree_view_->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ResManagementPanelDirTreeHandler::OnDirTreeSelectionChanged);
 }
 
 void ResManagementPanelDirTreeHandler::AfterInited()
 {}
 
-void ResManagementPanelDirTreeHandler::OnDirTreeClicked(const QModelIndex& index)
+void ResManagementPanelDirTreeHandler::OnDirTreeSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
+	auto file_list_handler = SiblingHandler<ResManagementPanelFileListHandler>();
+	if (file_list_handler == nullptr)
+	{
+		return;
+	}
+
+	auto indexes = selected.indexes();
+	if (indexes.isEmpty())
+	{
+		file_list_handler->Reset();
+		return;
+	}
+
 	auto file_tree_model = dynamic_cast<FileTreeModel*>(dir_tree_view_->model());
 	if (file_tree_model == nullptr)
 	{
 		return;
 	}
 
-	auto file_list_handler = SiblingHandler<ResManagementPanelFileListHandler>();
-	if (file_list_handler)
+	auto file_item = file_tree_model->TreeItemWithinModelIndex(indexes.front());
+	if (file_item)
 	{
-		auto file_item = file_tree_model->TreeItemWithinModelIndex(index);
-
 		file_list_handler->ShowFilesInTargetDir(file_item);
 	}
 }

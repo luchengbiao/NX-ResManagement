@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
 
 	FunctionPerformer::Init();
 
-	QString project_res_dir; // = R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res)";
-	QString builtin_res_dir; // = R"(C:\Users\luchengbiao\AppData\Local\neox-hub\NeoX-Engine_2020.09.01s1(Jun.Stable)\Core-Editor\win32_editor\packages\builtin\res)";
+	QString project_res_dir = R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res)";
+	QString builtin_res_dir = R"(C:\Users\luchengbiao\AppData\Local\neox-hub\NeoX-Engine_2020.09.01s1(Jun.Stable)\Core-Editor\win32_editor\packages\builtin\res)";
 
 	// parse dirs from command line
 	{

@@ -199,7 +199,7 @@ void FileTreeModel::OnBeginToAddItem(const FileItem_SharedPtr& parent, const Fil
 {
 	Q_UNUSED(item);
 
-	this->beginInsertRows(CreateIndex(parent, 0), index_of_item, index_of_item);
+	this->beginInsertRows(CreateIndex(parent, parent == root_item_? -1 : 0), index_of_item, index_of_item);
 }
 
 void FileTreeModel::OnItemAdded(const FileItem_SharedPtr& parent, const FileItem_SharedPtr& item, int index_of_item)

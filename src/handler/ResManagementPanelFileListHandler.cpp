@@ -82,12 +82,23 @@ void ResManagementPanelFileListHandler::Init()
 	}
 
 	file_tree_view_ = ui->file_tree_view;
+	slider_ = ui->slider;
+
+	connect(slider_, &QSlider::valueChanged, this, &ResManagementPanelFileListHandler::OnSliderValueChanged);
 }
 
 void ResManagementPanelFileListHandler::AfterInited()
 {
 	// test path
-	//this->ShowFilesInTargetDir(FileItem::Create(R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res\test)", "test"));
+	this->ShowFilesInTargetDir(FileItem::Create(R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res\test)", "test"));
+}
+
+void ResManagementPanelFileListHandler::Reset()
+{
+	target_dir_.reset();
+	current_file_tree_root_item_.reset();
+	current_file_tree_model_.reset();
+	file_tree_view_->setModel(nullptr);
 }
 
 void ResManagementPanelFileListHandler::ShowFilesInTargetDir(const FileItem_SharedPtr& target_dir)
@@ -97,11 +108,9 @@ void ResManagementPanelFileListHandler::ShowFilesInTargetDir(const FileItem_Shar
 		return;
 	}
 
+	this->Reset();
 	target_dir_ = target_dir;
-	current_file_tree_root_item_.reset();
-	current_file_tree_model_.reset();
-	file_tree_view_->setModel(nullptr);
-
+	
 	if (target_dir == nullptr)
 	{
 		return;
@@ -165,5 +174,13 @@ void ResManagementPanelFileListHandler::OnImageFileIconLoaded(const QIcon& icon,
 		{
 			current_file_tree_model_->NotifyFileIconLoaded(item);
 		}
+	}
+}
+
+void ResManagementPanelFileListHandler::OnSliderValueChanged(int value)
+{
+	if (file_tree_view_)
+	{
+		file_tree_view_->setVisible(value < 25);
 	}
 }

@@ -1,11 +1,11 @@
 #ifndef RESMANAGEMENTPANELDIRTREEHANDLER_H
 #define RESMANAGEMENTPANELDIRTREEHANDLER_H
-#include <QPointer>
-#include <QTreeView>
 #include "src/model/FileItem_Fwd.h"
 #include "ResManagementPanelHandler.h"
 
 class FileTreeModel;
+class QItemSelection;
+class QTreeView;
 
 class ResManagementPanelDirTreeHandler : public ResManagementPanelHandlerWithType<ResManagementPanelHandlerType::DirTree>
 {
@@ -19,7 +19,7 @@ private:
     virtual void					AfterInited() override;
 
 private Q_SLOTS:
-	void							OnDirTreeClicked(const QModelIndex& index);
+	void							OnDirTreeSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
 	FileItem_SharedPtr				dir_tree_root_item_;

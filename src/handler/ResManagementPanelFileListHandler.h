@@ -1,11 +1,11 @@
 #ifndef RESMANAGEMENTPANELFILELISTHANDLER_H
 #define RESMANAGEMENTPANELFILELISTHANDLER_H
-#include <QPointer>
-#include <QTreeView>
 #include "ResManagementPanelHandler.h"
 #include "src/model/FileItem_Fwd.h"
 
 class FileTreeModel;
+class QTreeView;
+class QSlider;
 
 class ResManagementPanelFileListHandler : public ResManagementPanelHandlerWithType<ResManagementPanelHandlerType::FileList>
 {
@@ -15,6 +15,7 @@ class ResManagementPanelFileListHandler : public ResManagementPanelHandlerWithTy
 public:
     ResManagementPanelFileListHandler(ResManagementPanel* panel);
 
+	void							Reset();
 	void							ShowFilesInTargetDir(const FileItem_SharedPtr& target_dir);
 
 private:
@@ -22,6 +23,9 @@ private:
 	virtual void					AfterInited() override;
 
 	void							OnImageFileIconLoaded(const QIcon& icon, const QString& file_path);
+
+private Q_SLOTS:
+	void							OnSliderValueChanged(int value);
 
 private:
 	FileItem_WeakPtr				target_dir_;
@@ -32,6 +36,7 @@ private:
 	std::shared_ptr<FileTreeIconProvider> file_tree_icon_provider_;
 
 	QPointer<QTreeView>				file_tree_view_;
+	QPointer<QSlider>				slider_;
 };
 
 #endif // RESMANAGEMENTPANELFILELISTHANDLER_H
