@@ -1,7 +1,9 @@
 #include "ResManagementPanelFileListHandler.h"
 #include <QFileIconProvider>
+#include <QListView>
 #include <QMimeDatabase>
 #include <QMimeType>
+#include <QStackedLayout>
 #include <QtConcurrent>
 #include "ResManagementPanelDirTreeHandler.h"
 #include "src/model/FileItem.h"
@@ -32,7 +34,7 @@ public:
 			// load image asyncly
 			std::weak_ptr<FileTreeIconProvider> weak_this = std::const_pointer_cast<FileTreeIconProvider>(shared_from_this());
 			QtConcurrent::run([weak_this, file_info] {
-				QImage scaled_image = QImage(file_info.filePath()).scaled(16, 16);
+				QImage scaled_image = QImage(file_info.filePath()).scaled(128, 128);
 
 				// notify in main thread
 				FunctionPerformer::PerformOnMainThread([weak_this, scaled_image, file_info] {
@@ -82,7 +84,29 @@ void ResManagementPanelFileListHandler::Init()
 		return;
 	}
 
-	file_tree_view_ = ui->file_tree_view;
+	// create stacked widgets
+	{
+		stacked_layout_ = new QStackedLayout(ui->file_list_wrapper_widget);
+
+		file_tree_view_ = new QTreeView(ui->file_list_wrapper_widget);
+		file_tree_view_->setFrameShape(QFrame::NoFrame);
+		file_tree_view_->setFrameShadow(QFrame::Sunken);
+		file_tree_view_->setLineWidth(0);
+
+		file_list_view_ = new QListView(ui->file_list_wrapper_widget);
+		file_list_view_->setFrameShape(QFrame::NoFrame);
+		file_list_view_->setFrameShadow(QFrame::Sunken);
+		file_list_view_->setViewMode(QListView::IconMode);
+		file_list_view_->setMovement(QListView::Static); 
+		file_list_view_->setIconSize(QSize(64, 64)); 
+		file_list_view_->setGridSize(QSize(64 + 50, 64 + 30));
+		file_list_view_->setResizeMode(QListView::Adjust);
+
+		stacked_layout_->addWidget(file_tree_view_);
+		stacked_layout_->addWidget(file_list_view_);
+	}
+
+	ui->slider->setRange(0, 16 * 7);
 	slider_ = ui->slider;
 
 	connect(file_tree_view_, &QTreeView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileTreeDoubleClicked);
@@ -137,31 +161,29 @@ void ResManagementPanelFileListHandler::ShowFilesInTargetDir(const FileItem_Shar
 		}
 	}
 
-	if (current_file_tree_root_item_)
-	{
-		QVector<QString> header_column_names = { 
+	QVector<QString> header_column_names = {
 			QStringLiteral("文件名"),
 			QStringLiteral("最后修改时间"),
 			QStringLiteral("大小"),
-		};
+	};
 
-		current_file_tree_model_.reset(new FileTreeModel(header_column_names, current_file_tree_root_item_));
-		current_file_tree_model_->SetFilters(QDir::Dirs | QDir::Files);
-		current_file_tree_model_->WatchFileTreeRecursively(false);
+	current_file_tree_model_.reset(new FileTreeModel(header_column_names, current_file_tree_root_item_));
+	current_file_tree_model_->SetFilters(QDir::Dirs | QDir::Files);
+	current_file_tree_model_->WatchFileTreeRecursively(false);
 
-		if (!file_tree_icon_provider_)
-		{
-			file_tree_icon_provider_ = std::make_shared<FileTreeIconProvider>(this);
-		}
+	if (!file_tree_icon_provider_)
+	{
+		file_tree_icon_provider_ = std::make_shared<FileTreeIconProvider>(this);
+	}
 
-		current_file_tree_model_->SetFileIconProvider(file_tree_icon_provider_);
+	current_file_tree_model_->SetFileIconProvider(file_tree_icon_provider_);
 
-		file_tree_view_->setModel(current_file_tree_model_.get());
+	file_tree_view_->setModel(current_file_tree_model_.get());
+	file_list_view_->setModel(current_file_tree_model_.get());
 
-		for (int column = 0; column < current_file_tree_model_->columnCount(); ++column)
-		{
-			file_tree_view_->resizeColumnToContents(column);
-		}
+	for (int column = 0; column < current_file_tree_model_->columnCount(); ++column)
+	{
+		file_tree_view_->resizeColumnToContents(column);
 	}
 }
 
@@ -202,8 +224,22 @@ void ResManagementPanelFileListHandler::OnFileTreeDoubleClicked(const QModelInde
 
 void ResManagementPanelFileListHandler::OnSliderValueChanged(int value)
 {
-	if (file_tree_view_)
+	if (stacked_layout_ == nullptr)
 	{
-		file_tree_view_->setVisible(value < 25);
+		return;
+	}
+
+	const int critical_value = 16;
+
+	const int current_index = value >= critical_value ? 1 : 0;
+	stacked_layout_->setCurrentIndex(current_index);
+
+	if (current_index == 1)
+	{
+		const int factor = (value - critical_value) / 16;
+		const int size = 16 * (factor + 1);
+
+		file_list_view_->setIconSize(QSize(size, size));
+		file_list_view_->setGridSize(QSize(size + 50, size + 30));
 	}
 }

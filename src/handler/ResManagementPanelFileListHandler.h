@@ -4,9 +4,11 @@
 #include "src/model/FileItem_Fwd.h"
 
 class FileTreeModel;
+class QListView;
 class QModelIndex;
 class QTreeView;
 class QSlider;
+class QStackedLayout;
 
 class ResManagementPanelFileListHandler : public ResManagementPanelHandlerWithType<ResManagementPanelHandlerType::FileList>
 {
@@ -37,7 +39,9 @@ private:
 
 	std::shared_ptr<FileTreeIconProvider> file_tree_icon_provider_;
 
+	QPointer<QStackedLayout>		stacked_layout_;
 	QPointer<QTreeView>				file_tree_view_;
+	QPointer<QListView>				file_list_view_;
 	QPointer<QSlider>				slider_;
 };
 

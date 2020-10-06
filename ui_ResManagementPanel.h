@@ -41,12 +41,10 @@ public:
     QToolButton *search_setting_btn;
     QSlider *slider;
     QSplitter *main_splitter;
-    QWidget *left_wrapper_widget;
+    QWidget *dir_tree_wrapper_widget;
     QVBoxLayout *verticalLayout_2;
     QTreeView *dir_tree_view;
-    QWidget *middle_wrapper_widget;
-    QVBoxLayout *verticalLayout_3;
-    QTreeView *file_tree_view;
+    QWidget *file_list_wrapper_widget;
     QWidget *right_wrapper_widget;
 
     void setupUi(QWidget *ResManagementPanel)
@@ -146,13 +144,13 @@ public:
         main_splitter->setOrientation(Qt::Horizontal);
         main_splitter->setOpaqueResize(true);
         main_splitter->setChildrenCollapsible(false);
-        left_wrapper_widget = new QWidget(main_splitter);
-        left_wrapper_widget->setObjectName(QString::fromUtf8("left_wrapper_widget"));
-        verticalLayout_2 = new QVBoxLayout(left_wrapper_widget);
+        dir_tree_wrapper_widget = new QWidget(main_splitter);
+        dir_tree_wrapper_widget->setObjectName(QString::fromUtf8("dir_tree_wrapper_widget"));
+        verticalLayout_2 = new QVBoxLayout(dir_tree_wrapper_widget);
         verticalLayout_2->setSpacing(0);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
-        dir_tree_view = new QTreeView(left_wrapper_widget);
+        dir_tree_view = new QTreeView(dir_tree_wrapper_widget);
         dir_tree_view->setObjectName(QString::fromUtf8("dir_tree_view"));
         dir_tree_view->setFrameShape(QFrame::NoFrame);
         dir_tree_view->setFrameShadow(QFrame::Sunken);
@@ -163,22 +161,11 @@ public:
 
         verticalLayout_2->addWidget(dir_tree_view);
 
-        main_splitter->addWidget(left_wrapper_widget);
-        middle_wrapper_widget = new QWidget(main_splitter);
-        middle_wrapper_widget->setObjectName(QString::fromUtf8("middle_wrapper_widget"));
-        middle_wrapper_widget->setStyleSheet(QString::fromUtf8(""));
-        verticalLayout_3 = new QVBoxLayout(middle_wrapper_widget);
-        verticalLayout_3->setSpacing(0);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        verticalLayout_3->setContentsMargins(0, 0, 0, 0);
-        file_tree_view = new QTreeView(middle_wrapper_widget);
-        file_tree_view->setObjectName(QString::fromUtf8("file_tree_view"));
-        file_tree_view->setSelectionBehavior(QAbstractItemView::SelectRows);
-        file_tree_view->setAllColumnsShowFocus(false);
-
-        verticalLayout_3->addWidget(file_tree_view);
-
-        main_splitter->addWidget(middle_wrapper_widget);
+        main_splitter->addWidget(dir_tree_wrapper_widget);
+        file_list_wrapper_widget = new QWidget(main_splitter);
+        file_list_wrapper_widget->setObjectName(QString::fromUtf8("file_list_wrapper_widget"));
+        file_list_wrapper_widget->setStyleSheet(QString::fromUtf8(""));
+        main_splitter->addWidget(file_list_wrapper_widget);
         right_wrapper_widget = new QWidget(main_splitter);
         right_wrapper_widget->setObjectName(QString::fromUtf8("right_wrapper_widget"));
         right_wrapper_widget->setStyleSheet(QString::fromUtf8(".QWidget{ background-color:LightSkyBlue; }"));
