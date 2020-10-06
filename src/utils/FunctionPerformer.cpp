@@ -3,14 +3,14 @@
 
 FunctionPerformer::FunctionPerformer(QObject* parent)
     : QObject(parent)
-	, my_thread_id_(QThread::currentThreadId())
+	, the_thread_id_(QThread::currentThreadId())
 {
 	connect(this, &FunctionPerformer::Transfer, this, &FunctionPerformer::Perform);
 }
 
-void FunctionPerformer::PerformInMyThread(const std::function<void()>& func)
+void FunctionPerformer::PerformOnTheThread(const std::function<void()>& func)
 {
-    if (QThread::currentThreadId() == my_thread_id_)
+    if (QThread::currentThreadId() == the_thread_id_)
     {
 		func();
 	}
@@ -34,7 +34,8 @@ void FunctionPerformer::Init()
 	s_main_thread_performer_ = new FunctionPerformer(); // never delete
 }
 
-void FunctionPerformer::PerformInMainThread(const std::function<void()>& func)
+void FunctionPerformer::PerformOnMainThread(const std::function<void()>& func)
 {
-	s_main_thread_performer_->PerformInMyThread(func);
+	// DO NOT forget FunctionPerformer::Init() on the main thread
+	s_main_thread_performer_->PerformOnTheThread(func);
 }

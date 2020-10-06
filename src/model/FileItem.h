@@ -17,6 +17,9 @@ public:
 										       const FileItem_SharedPtr& parent = nullptr);
 
 public:
+	bool								IsDir() const;
+	bool								IsFile() const;
+
 	QString								FilePath() const;
 	QString								NameToDisplay() const;
 	QVariant							DataAtColumn(int column);

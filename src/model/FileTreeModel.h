@@ -36,6 +36,8 @@ public:
 	virtual int				rowCount(const QModelIndex& parent = QModelIndex()) const override;
 	virtual int				columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
+	QModelIndex				CreateIndex(const FileItem_SharedPtr& item, int column) const;
+	QModelIndex				CreateParentIndex(const FileItem_SharedPtr& item) const;
 	FileItem_SharedPtr		TreeItemWithinModelIndex(const QModelIndex& index) const;
 
 private:
@@ -46,9 +48,6 @@ private:
 	void					OnBeginToAddItem(const FileItem_SharedPtr& parent, const FileItem_SharedPtr& item, int index_of_item);
 	void					OnItemAdded(const FileItem_SharedPtr& parent, const FileItem_SharedPtr& item, int index_of_item);
 	void					OnItemChanged(const FileItem_SharedPtr& parent, const FileItem_SharedPtr& item, int index_of_item);
-
-	QModelIndex				CreateIndex(const FileItem_SharedPtr& item, int column) const;
-	QModelIndex				CreateParentIndex(const FileItem_SharedPtr& item) const;
 
 	void					OnDirectoryChanged(const QString& path);
 	void					OnFileChanged(const QString& path);

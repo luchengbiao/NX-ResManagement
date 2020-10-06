@@ -20,6 +20,16 @@ FileItem::FileItem(const QString& file_path,
 	, parent_(parent)
 {}
 
+bool FileItem::IsDir() const
+{
+	return QFileInfo(file_path_).isDir();
+}
+
+bool FileItem::IsFile() const
+{
+	return QFileInfo(file_path_).isFile();
+}
+
 QString FileItem::FilePath() const
 {
 	return file_path_;

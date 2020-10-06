@@ -3,6 +3,7 @@
 #include <QMimeDatabase>
 #include <QMimeType>
 #include <QtConcurrent>
+#include "ResManagementPanelDirTreeHandler.h"
 #include "src/model/FileItem.h"
 #include "src/model/FileTreeModel.h"
 #include "src/utils/FunctionPerformer.h"
@@ -34,7 +35,7 @@ public:
 				QImage scaled_image = QImage(file_info.filePath()).scaled(16, 16);
 
 				// notify in main thread
-				FunctionPerformer::PerformInMainThread([weak_this, scaled_image, file_info] {
+				FunctionPerformer::PerformOnMainThread([weak_this, scaled_image, file_info] {
 					auto shared_this = weak_this.lock();
 					if (shared_this)
 					{
@@ -84,13 +85,14 @@ void ResManagementPanelFileListHandler::Init()
 	file_tree_view_ = ui->file_tree_view;
 	slider_ = ui->slider;
 
+	connect(file_tree_view_, &QTreeView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileTreeDoubleClicked);
 	connect(slider_, &QSlider::valueChanged, this, &ResManagementPanelFileListHandler::OnSliderValueChanged);
 }
 
 void ResManagementPanelFileListHandler::AfterInited()
 {
-	// test path
-	this->ShowFilesInTargetDir(FileItem::Create(R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res\test)", "test"));
+	// test code
+	//this->ShowFilesInTargetDir(FileItem::Create(R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res\test)", "test"));
 }
 
 void ResManagementPanelFileListHandler::Reset()
@@ -161,12 +163,12 @@ void ResManagementPanelFileListHandler::ShowFilesInTargetDir(const FileItem_Shar
 			file_tree_view_->resizeColumnToContents(column);
 		}
 	}
-
-	// FIXME: 在根节点下添加新的文件或文件夹, QTreeView没有即时显示出来.
 }
 
 void ResManagementPanelFileListHandler::OnImageFileIconLoaded(const QIcon& icon, const QString& file_path)
 {
+	Q_UNUSED(icon);
+
 	if (current_file_tree_model_ && current_file_tree_root_item_)
 	{
 		auto item = current_file_tree_root_item_->FindChildByPath(file_path);
@@ -174,6 +176,27 @@ void ResManagementPanelFileListHandler::OnImageFileIconLoaded(const QIcon& icon,
 		{
 			current_file_tree_model_->NotifyFileIconLoaded(item);
 		}
+	}
+}
+
+void ResManagementPanelFileListHandler::OnFileTreeDoubleClicked(const QModelIndex& index)
+{
+	auto dir_tree_handler = SiblingHandler<ResManagementPanelDirTreeHandler>();
+	if (dir_tree_handler == nullptr)
+	{
+		return;
+	}
+
+	auto file_tree_model = dynamic_cast<FileTreeModel*>(file_tree_view_->model());
+	if (file_tree_model == nullptr)
+	{
+		return;
+	}
+
+	auto file_item = file_tree_model->TreeItemWithinModelIndex(index);
+	if (file_item && file_item->IsDir())
+	{
+		dir_tree_handler->SelectItemWithFilePath(file_item->FilePath());
 	}
 }
 

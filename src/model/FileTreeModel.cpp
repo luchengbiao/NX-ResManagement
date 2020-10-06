@@ -51,7 +51,13 @@ void FileTreeModel::InstallFileSystemWatcher()
 	file_system_watcher_.reset(new QFileSystemWatcher(this));
 
 	file_system_watcher_->addPath(root_item_->FilePath());
-	file_system_watcher_->addPaths(root_item_->ChildFilePathList(watch_file_tree_recursively_));
+	if (watch_file_tree_recursively_)
+	{
+		file_system_watcher_->addPaths(root_item_->ChildFilePathList(true));
+	}
+	else
+	{
+	}
 
 	connect(file_system_watcher_.get(), &QFileSystemWatcher::directoryChanged, this, &FileTreeModel::OnDirectoryChanged);
 	connect(file_system_watcher_.get(), &QFileSystemWatcher::fileChanged, this, &FileTreeModel::OnFileChanged);
@@ -176,7 +182,7 @@ void FileTreeModel::OnItemAboutToBeRemoved(const FileItem_SharedPtr& parent, con
 {
 	Q_UNUSED(item);
 
-	emit rowsAboutToBeRemoved(CreateIndex(parent, 0), index_of_item, index_of_item, {}); // View may change the selected item
+	emit rowsAboutToBeRemoved(CreateIndex(parent, 0), index_of_item, index_of_item, {}); // View-layer may change the selected item
 }
 
 void FileTreeModel::OnItemRemoved(const FileItem_SharedPtr& parent, const FileItem_SharedPtr& item, int index_of_item)
@@ -205,8 +211,15 @@ void FileTreeModel::OnBeginToAddItem(const FileItem_SharedPtr& parent, const Fil
 void FileTreeModel::OnItemAdded(const FileItem_SharedPtr& parent, const FileItem_SharedPtr& item, int index_of_item)
 {
 	Q_UNUSED(item);
+	Q_UNUSED(index_of_item);
 
 	this->endInsertRows();
+
+	if (parent == root_item_)
+	{
+		// For the issue that: the View-layer could not show the new node added in the root node.
+		emit layoutChanged(); 
+	}
 }
 
 void FileTreeModel::OnItemChanged(const FileItem_SharedPtr& parent, const FileItem_SharedPtr& item, int index_of_item)
@@ -216,6 +229,29 @@ void FileTreeModel::OnItemChanged(const FileItem_SharedPtr& parent, const FileIt
 	Q_UNUSED(index_of_item);
 
 	emit dataChanged(CreateIndex(item, 0), CreateIndex(item, header_column_names_.size() - 1), { Qt::DisplayRole });
+}
+
+QModelIndex FileTreeModel::CreateIndex(const FileItem_SharedPtr& item, int column) const
+{
+	QModelIndex index = QAbstractItemModel::createIndex(item->IndexInParent(), column, item.get());
+
+	if (item)
+	{
+		items_within_model_index_[item.get()] = item;
+	}
+
+	return index;
+}
+
+QModelIndex FileTreeModel::CreateParentIndex(const FileItem_SharedPtr& item) const
+{
+	auto parent = item->Parent();
+	if (parent == nullptr)
+	{
+		return QModelIndex();
+	}
+
+	return CreateIndex(parent, 0);
 }
 
 FileItem_SharedPtr FileTreeModel::TreeItemWithinModelIndex(const QModelIndex& index) const
@@ -248,29 +284,6 @@ FileItem_SharedPtr FileTreeModel::TreeItemWithinModelIndex(const QModelIndex& in
 	} while (false);
 
 	return root_item_;
-}
-
-QModelIndex FileTreeModel::CreateIndex(const FileItem_SharedPtr& item, int column) const
-{
-	QModelIndex index = QAbstractItemModel::createIndex(item->IndexInParent(), column, item.get());
-
-	if (item)
-	{
-		items_within_model_index_[item.get()] = item;
-	}
-
-	return index;
-}
-
-QModelIndex FileTreeModel::CreateParentIndex(const FileItem_SharedPtr& item) const
-{
-	auto parent = item->Parent();
-	if (parent == nullptr)
-	{
-		return QModelIndex();
-	}
-
-	return CreateIndex(parent, 0);
 }
 
 void FileTreeModel::OnDirectoryChanged(const QString& path)

@@ -12,9 +12,9 @@ public:
 
 public:
 	static void Init();
-    static void PerformInMainThread(const std::function<void()>& func);
+    static void PerformOnMainThread(const std::function<void()>& func);
 
-    void PerformInMyThread(const std::function<void()>& func);
+    void PerformOnTheThread(const std::function<void()>& func);
 
 Q_SIGNALS:
     void Transfer(const std::function<void()>& func);
@@ -23,7 +23,7 @@ private Q_SLOTS:
     void Perform(const std::function<void()>& func);
 
 private:
-	const Qt::HANDLE my_thread_id_;
+	const Qt::HANDLE the_thread_id_;
 };
 
 #endif // FUNCTIONPERFORMER_H

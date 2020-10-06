@@ -14,6 +14,8 @@ class ResManagementPanelDirTreeHandler : public ResManagementPanelHandlerWithTyp
 public:
     explicit ResManagementPanelDirTreeHandler(ResManagementPanel* panel);
 
+	void							SelectItemWithFilePath(const QString& file_path);
+
 private:
     virtual void					Init() override;
     virtual void					AfterInited() override;
