@@ -5,7 +5,8 @@ enum class ResManagementPanelHandlerType
 {
 	DirTree,
 	FileList,
-	Search,
+	FilePathNavi,
+	// more other handlers...
 };
 
 #endif // RESMANAGEMENTPANELHANDLERTYPES_H

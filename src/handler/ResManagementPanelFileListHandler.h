@@ -28,7 +28,7 @@ private:
 	void							OnImageFileIconLoaded(const QIcon& icon, const QString& file_path);
 
 private Q_SLOTS:
-	void							OnFileTreeDoubleClicked(const QModelIndex& index);
+	void							OnFileItemDoubleClicked(const QModelIndex& index);
 	void							OnSliderValueChanged(int value);
 
 private:

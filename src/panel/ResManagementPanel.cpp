@@ -1,6 +1,7 @@
 #include "ResManagementPanel.h"
 #include "src/handler/ResManagementPanelDirTreeHandler.h"
 #include "src/handler/ResManagementPanelFileListHandler.h"
+#include "src/handler/ResManagementPanelFilePathNaviHandler.h"
 #include "ui_ResManagementPanel.h"
 
 ResManagementPanel::ResManagementPanel(const QString& project_res_dir,
@@ -38,6 +39,7 @@ void ResManagementPanel::InitSubHandlers()
     sub_handlers_ = {
 		TYPE_2_HANDLER(ResManagementPanelDirTreeHandler),
 		TYPE_2_HANDLER(ResManagementPanelFileListHandler),
+        TYPE_2_HANDLER(ResManagementPanelFilePathNaviHandler),
 	};
 
 #undef TYPE_2_HANDLER

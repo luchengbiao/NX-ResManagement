@@ -131,6 +131,22 @@ FileItem_SharedPtr FileItem::Parent() const
 	return parent_.lock();
 }
 
+bool FileItem::IsAncestorOf(const FileItem& child) const
+{
+	auto parent = child.Parent();
+	while (parent != nullptr)
+	{
+		if (parent.get() == this)
+		{
+			return true;
+		}
+
+		parent = parent->Parent();
+	}
+
+	return false;
+}
+
 int FileItem::IndexInParent() const
 {
 	auto parent = this->Parent();
@@ -355,6 +371,8 @@ void FileItem::RenameFilePath(const QString& file_path)
 	{
 		parent->OnChildFilePathRenamed(shared_from_this(), old_file_path);
 	}
+
+	emit FilePathRenamed(old_file_path, file_path);
 }
 
 void FileItem::OnChildFilePathRenamed(const FileItem_SharedPtr& child, const QString& old_file_path)

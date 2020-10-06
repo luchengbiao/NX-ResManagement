@@ -36,6 +36,8 @@ public:
     QToolButton *close_btn;
     QWidget *setting_wrapper_widget;
     QHBoxLayout *horizontalLayout_2;
+    QWidget *file_path_navi_widget;
+    QHBoxLayout *horizontalLayout_3;
     QSpacerItem *horizontalSpacer_2;
     QLineEdit *search_key_edit;
     QToolButton *search_setting_btn;
@@ -102,6 +104,15 @@ public:
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(8, 0, 8, 0);
+        file_path_navi_widget = new QWidget(setting_wrapper_widget);
+        file_path_navi_widget->setObjectName(QString::fromUtf8("file_path_navi_widget"));
+        horizontalLayout_3 = new QHBoxLayout(file_path_navi_widget);
+        horizontalLayout_3->setSpacing(2);
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
+
+        horizontalLayout_2->addWidget(file_path_navi_widget);
+
         horizontalSpacer_2 = new QSpacerItem(815, 19, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_2->addItem(horizontalSpacer_2);

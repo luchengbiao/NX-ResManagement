@@ -11,6 +11,9 @@
 #include "src/utils/FunctionPerformer.h"
 #include "ui_ResManagementPanel.h"
 
+static const int s_icon_grid_delta_x = 50;
+static const int s_icon_grid_delta_y = 30;
+
 class ResManagementPanelFileListHandler::FileTreeIconProvider : public QFileIconProvider
 															  , public std::enable_shared_from_this<FileTreeIconProvider>
 {
@@ -98,8 +101,8 @@ void ResManagementPanelFileListHandler::Init()
 		file_list_view_->setFrameShadow(QFrame::Sunken);
 		file_list_view_->setViewMode(QListView::IconMode);
 		file_list_view_->setMovement(QListView::Static); 
-		file_list_view_->setIconSize(QSize(64, 64)); 
-		file_list_view_->setGridSize(QSize(64 + 50, 64 + 30));
+		file_list_view_->setIconSize(QSize(16, 16));
+		file_list_view_->setGridSize(QSize(16 + s_icon_grid_delta_x, 16 + s_icon_grid_delta_y));
 		file_list_view_->setResizeMode(QListView::Adjust);
 
 		stacked_layout_->addWidget(file_tree_view_);
@@ -109,7 +112,8 @@ void ResManagementPanelFileListHandler::Init()
 	ui->slider->setRange(0, 16 * 7);
 	slider_ = ui->slider;
 
-	connect(file_tree_view_, &QTreeView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileTreeDoubleClicked);
+	connect(file_tree_view_, &QTreeView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileItemDoubleClicked);
+	connect(file_list_view_, &QListView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileItemDoubleClicked);
 	connect(slider_, &QSlider::valueChanged, this, &ResManagementPanelFileListHandler::OnSliderValueChanged);
 }
 
@@ -125,6 +129,7 @@ void ResManagementPanelFileListHandler::Reset()
 	current_file_tree_root_item_.reset();
 	current_file_tree_model_.reset();
 	file_tree_view_->setModel(nullptr);
+	file_list_view_->setModel(nullptr);
 }
 
 void ResManagementPanelFileListHandler::ShowFilesInTargetDir(const FileItem_SharedPtr& target_dir)
@@ -201,7 +206,7 @@ void ResManagementPanelFileListHandler::OnImageFileIconLoaded(const QIcon& icon,
 	}
 }
 
-void ResManagementPanelFileListHandler::OnFileTreeDoubleClicked(const QModelIndex& index)
+void ResManagementPanelFileListHandler::OnFileItemDoubleClicked(const QModelIndex& index)
 {
 	auto dir_tree_handler = SiblingHandler<ResManagementPanelDirTreeHandler>();
 	if (dir_tree_handler == nullptr)
@@ -231,15 +236,18 @@ void ResManagementPanelFileListHandler::OnSliderValueChanged(int value)
 
 	const int critical_value = 16;
 
-	const int current_index = value >= critical_value ? 1 : 0;
-	stacked_layout_->setCurrentIndex(current_index);
-
-	if (current_index == 1)
+	if (value < critical_value)
 	{
+		stacked_layout_->setCurrentIndex(0);
+	}
+	else
+	{
+		stacked_layout_->setCurrentIndex(1);
+
 		const int factor = (value - critical_value) / 16;
 		const int size = 16 * (factor + 1);
 
 		file_list_view_->setIconSize(QSize(size, size));
-		file_list_view_->setGridSize(QSize(size + 50, size + 30));
+		file_list_view_->setGridSize(QSize(size + s_icon_grid_delta_x, size + s_icon_grid_delta_y));
 	}
 }

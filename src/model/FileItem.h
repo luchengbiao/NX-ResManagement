@@ -2,6 +2,7 @@
 #define FILEITEM_H
 #include <unordered_map>
 #include <QDir>
+#include <QObject>
 #include <QVariant>
 #include <QVector>
 #include "FileItem_Fwd.h"
@@ -9,8 +10,10 @@
 class DirChangedObserver;
 class FileTreeModel;
 
-class FileItem : public std::enable_shared_from_this<FileItem>
+class FileItem : public QObject, public std::enable_shared_from_this<FileItem>
 {
+	Q_OBJECT
+
 public:
 	static FileItem_SharedPtr			Create(const QString& file_path,
 										       const QString& display_name,
@@ -31,6 +34,7 @@ public:
 	int									CountOfChildren() const;
 
 	FileItem_SharedPtr					Parent() const;
+	bool								IsAncestorOf(const FileItem& child) const;
 
 	int									IndexInParent() const;
 	int									IndexOfChild(const FileItem_SharedPtr& child) const;
@@ -40,6 +44,9 @@ public:
 	FileItem_SharedPtr					FindChildByPath(const QString& file_path, bool recursively = true);
 
 	void								HandleDirChanged(QDir::Filters filters, FileTreeModel* model = nullptr, bool build_new_tree_node_recursively = true);
+
+Q_SIGNALS:
+	void								FilePathRenamed(const QString& old_file_path, const QString& new_file_path);
 
 protected:
 	FileItem(const QString& file_path,

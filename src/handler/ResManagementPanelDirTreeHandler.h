@@ -15,6 +15,7 @@ public:
     explicit ResManagementPanelDirTreeHandler(ResManagementPanel* panel);
 
 	void							SelectItemWithFilePath(const QString& file_path);
+	void							SelectFileItem(const FileItem_SharedPtr& file_item);
 
 private:
     virtual void					Init() override;

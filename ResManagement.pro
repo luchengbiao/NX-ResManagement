@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 HEADERS += \
     src/handler/ResManagementPanelDirTreeHandler.h \
     src/handler/ResManagementPanelFileListHandler.h \
+    src/handler/ResManagementPanelFilePathNaviHandler.h \
     src/model/FileTreeModel.h \
     src/model/FileItem.h \
     src/model/FileItem_Fwd.h \
@@ -30,6 +31,7 @@ HEADERS += \
 SOURCES += \
     src/handler/ResManagementPanelDirTreeHandler.cpp \
     src/handler/ResManagementPanelFileListHandler.cpp \
+    src/handler/ResManagementPanelFilePathNaviHandler.cpp \
     src/main.cpp \
     src/model/FileItem.cpp \
     src/model/FileTreeModel.cpp \

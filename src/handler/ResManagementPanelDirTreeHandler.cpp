@@ -1,6 +1,7 @@
 #include "ResManagementPanelDirTreeHandler.h"
 #include <QFileIconProvider>
 #include "ResManagementPanelFileListHandler.h"
+#include "ResManagementPanelFilePathNaviHandler.h"
 #include "src/model/FileItem.h"
 #include "src/model/FileTreeModel.h"
 #include "ui_ResManagementPanel.h"
@@ -82,15 +83,14 @@ void ResManagementPanelDirTreeHandler::OnDirTreeSelectionChanged(const QItemSele
 	Q_UNUSED(deselected);
 
 	auto file_list_handler = SiblingHandler<ResManagementPanelFileListHandler>();
-	if (file_list_handler == nullptr)
-	{
-		return;
-	}
+	auto file_path_navi_handler = SiblingHandler<ResManagementPanelFilePathNaviHandler>();
 
 	auto indexes = selected.indexes();
 	if (indexes.isEmpty())
 	{
 		file_list_handler->Reset();
+		file_path_navi_handler->Reset();
+		
 		return;
 	}
 
@@ -103,10 +103,25 @@ void ResManagementPanelDirTreeHandler::OnDirTreeSelectionChanged(const QItemSele
 	if (file_item)
 	{
 		file_list_handler->ShowFilesInTargetDir(file_item);
+		file_path_navi_handler->ShowFilePath(file_item);
 	}
 }
 
 void ResManagementPanelDirTreeHandler::SelectItemWithFilePath(const QString& file_path)
+{
+	if (dir_tree_root_item_ == nullptr)
+	{
+		return;
+	}
+
+	auto target_item = dir_tree_root_item_->FindChildByPath(file_path, true);
+	if (target_item)
+	{
+		this->SelectFileItem(target_item);
+	}
+}
+
+void ResManagementPanelDirTreeHandler::SelectFileItem(const FileItem_SharedPtr& file_item)
 {
 	if (dir_tree_view_ == nullptr
 		|| dir_tree_model_ == nullptr
@@ -115,15 +130,13 @@ void ResManagementPanelDirTreeHandler::SelectItemWithFilePath(const QString& fil
 		return;
 	}
 
-	auto target_item = dir_tree_root_item_->FindChildByPath(file_path, true);
-	if (target_item == nullptr)
+	if (file_item 
+		&& dir_tree_root_item_->IsAncestorOf(*file_item))
 	{
-		return;
+		QModelIndex model_index = dir_tree_model_->CreateIndex(file_item, 0);
+		dir_tree_view_->selectionModel()->select(model_index, { QItemSelectionModel::ClearAndSelect });
+		dir_tree_view_->expand(model_index);
+		dir_tree_view_->scrollTo(model_index);
 	}
-
-	QModelIndex model_index = dir_tree_model_->CreateIndex(target_item, 0);
-	dir_tree_view_->selectionModel()->select(model_index, { QItemSelectionModel::ClearAndSelect });
-	dir_tree_view_->expand(model_index);
-	dir_tree_view_->scrollTo(model_index);
 }
 
