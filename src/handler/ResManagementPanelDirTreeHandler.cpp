@@ -3,6 +3,7 @@
 #include "ResManagementPanelFileListHandler.h"
 #include "ResManagementPanelFilePathNaviHandler.h"
 #include "src/model/FileItem.h"
+#include "src/model/FileItemFactory.h"
 #include "src/model/FileTreeModel.h"
 #include "ui_ResManagementPanel.h"
 
@@ -51,11 +52,11 @@ void ResManagementPanelDirTreeHandler::Init()
     QString project_res_dir = panel_->ProjectResDir();
     QString builtin_res_dir = panel_->BuiltinResDir();
 
-	auto content_item = FileItem::Create("", "Content");
-	auto project_res_item = FileItem::Create(project_res_dir, "Game/res");
+	auto content_item = FileItemFactory::CreateFileItem("Content", "Content");
+	auto project_res_item = FileItemFactory::CreateFileItem(project_res_dir, "Game/res");
 
-	auto packages_item = FileItem::Create("", "Packages");
-	auto builtin_res_item = FileItem::Create(builtin_res_dir, "builtin/res");
+	auto packages_item = FileItemFactory::CreateFileItem("Packages", "Packages");
+	auto builtin_res_item = FileItemFactory::CreateFileItem(builtin_res_dir, "builtin/res");
 
 	dir_tree_root_item_->AppendChild(content_item);
 	dir_tree_root_item_->AppendChild(packages_item);
@@ -76,7 +77,15 @@ void ResManagementPanelDirTreeHandler::Init()
 }
 
 void ResManagementPanelDirTreeHandler::AfterInited()
-{}
+{
+	if (panel_ == nullptr)
+	{
+		return;
+	}
+
+	QString project_res_dir = panel_->ProjectResDir();
+	this->SelectItemWithFilePath(project_res_dir);
+}
 
 void ResManagementPanelDirTreeHandler::OnDirTreeSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
@@ -135,7 +144,7 @@ void ResManagementPanelDirTreeHandler::SelectFileItem(const FileItem_SharedPtr& 
 	{
 		QModelIndex model_index = dir_tree_model_->CreateIndex(file_item, 0);
 		dir_tree_view_->selectionModel()->select(model_index, { QItemSelectionModel::ClearAndSelect });
-		dir_tree_view_->expand(model_index);
+		//dir_tree_view_->expand(model_index);
 		dir_tree_view_->scrollTo(model_index);
 	}
 }

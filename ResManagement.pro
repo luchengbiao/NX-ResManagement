@@ -19,10 +19,12 @@ HEADERS += \
     src/handler/ResManagementPanelDirTreeHandler.h \
     src/handler/ResManagementPanelFileListHandler.h \
     src/handler/ResManagementPanelFilePathNaviHandler.h \
+    src/model/FileItemFactory.h \
     src/model/FileTreeModel.h \
     src/model/FileItem.h \
     src/model/FileItem_Fwd.h \
     src/model/FileTreeModel.h \
+    src/model/refined_fileitems/MtgFileItem.h \
     src/panel/ResManagementPanel.h \
     src/handler/ResManagementPanelHandler.h \
     src/handler/ResManagementPanelHandlerTypes.h \
@@ -34,7 +36,9 @@ SOURCES += \
     src/handler/ResManagementPanelFilePathNaviHandler.cpp \
     src/main.cpp \
     src/model/FileItem.cpp \
+    src/model/FileItemFactory.cpp \
     src/model/FileTreeModel.cpp \
+    src/model/refined_fileitems/MtgFileItem.cpp \
     src/panel/ResManagementPanel.cpp \
     src/model/FileTreeModel.cpp \
     src/utils/FunctionPerformer.cpp

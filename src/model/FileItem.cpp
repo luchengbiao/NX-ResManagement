@@ -3,18 +3,19 @@
 #include <QDir>
 #include <QPointer>
 #include <QSet>
+#include "FileItemFactory.h"
 #include "FileTreeModel.h"
 
 FileItem_SharedPtr FileItem::Create(const QString& file_path,
-											const QString& display_name,
-											const FileItem_SharedPtr& parent)
+									const QString& display_name,
+									const FileItem_SharedPtr& parent)
 {
 	return FileItem_SharedPtr(new FileItem(file_path, display_name, parent));
 }
 
 FileItem::FileItem(const QString& file_path,
-	                       const QString& display_name,
-	                       const FileItem_SharedPtr& parent)
+	               const QString& display_name,
+	               const FileItem_SharedPtr& parent)
 	: file_path_(file_path)
 	, display_name_(display_name)
 	, parent_(parent)
@@ -84,7 +85,7 @@ void FileItem::BuildTree(QDir::Filters filters, bool recursively)
 	const QStringList child_file_path_list = ChildFilePathList(filters, file_path_);
 	for (const auto& file_path : child_file_path_list)
 	{
-		auto dir_item = FileItem::Create(file_path, QFileInfo(file_path).fileName());
+		auto dir_item = FileItemFactory::CreateFileItem(file_path, QFileInfo(file_path).fileName());
 		this->AppendChild(dir_item);
 
 		if (recursively)
@@ -302,7 +303,7 @@ void FileItem::HandleDirChanged(QDir::Filters filters, FileTreeModel* model, boo
 		{
 			for (const auto& dir : added_dir_list)
 			{
-				auto dir_item = FileItem::Create(dir, QFileInfo(dir).fileName());
+				auto dir_item = FileItemFactory::CreateFileItem(dir, QFileInfo(dir).fileName());
 
 				if (model_guard)
 				{

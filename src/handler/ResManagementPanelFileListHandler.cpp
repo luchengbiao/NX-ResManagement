@@ -7,6 +7,7 @@
 #include <QtConcurrent>
 #include "ResManagementPanelDirTreeHandler.h"
 #include "src/model/FileItem.h"
+#include "src/model/FileItemFactory.h"
 #include "src/model/FileTreeModel.h"
 #include "src/utils/FunctionPerformer.h"
 #include "ui_ResManagementPanel.h"
@@ -120,7 +121,7 @@ void ResManagementPanelFileListHandler::Init()
 void ResManagementPanelFileListHandler::AfterInited()
 {
 	// test code
-	//this->ShowFilesInTargetDir(FileItem::Create(R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res\test)", "test"));
+	//this->ShowFilesInTargetDir(FileItemFactory::CreateFileItem(R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res\test)", "test"));
 }
 
 void ResManagementPanelFileListHandler::Reset()
@@ -151,18 +152,18 @@ void ResManagementPanelFileListHandler::ShowFilesInTargetDir(const FileItem_Shar
 	if (dir_path.isEmpty() == false &&
 		QFileInfo(dir_path).isDir())
 	{
-		current_file_tree_root_item_ = FileItem::Create(dir_path, QFileInfo(dir_path).fileName());
+		current_file_tree_root_item_ = FileItemFactory::CreateFileItem(dir_path, QFileInfo(dir_path).fileName());
 		current_file_tree_root_item_->BuildTree(QDir::Dirs | QDir::Files, false);
 	}
 	else
 	{
-		current_file_tree_root_item_ = FileItem::Create("", "");
+		current_file_tree_root_item_ = FileItemFactory::CreateFileItem("", "");
 
 		auto child_list = target_dir->ChildList(false);
 		for (const auto& child : child_list)
 		{
 			QString file_path = child->FilePath();
-			current_file_tree_root_item_->AppendChild(FileItem::Create(file_path, QFileInfo(file_path).fileName()));
+			current_file_tree_root_item_->AppendChild(FileItemFactory::CreateFileItem(file_path, QFileInfo(file_path).fileName()));
 		}
 	}
 

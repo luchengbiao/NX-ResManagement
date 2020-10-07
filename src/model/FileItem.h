@@ -25,7 +25,7 @@ public:
 
 	QString								FilePath() const;
 	QString								NameToDisplay() const;
-	QVariant							DataAtColumn(int column);
+	virtual QVariant					DataAtColumn(int column);
 
 	void								BuildTree(QDir::Filters filters, bool recursively = true);
 
@@ -64,7 +64,7 @@ protected:
 
 	static QStringList					ChildFilePathList(QDir::Filters filters, const QString& parent_file_path);
 
-private:
+protected:
 	QString								file_path_;
 	QString								display_name_;
 

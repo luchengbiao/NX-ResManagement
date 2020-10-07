@@ -5,5 +5,6 @@
 class FileItem;
 using FileItem_SharedPtr = std::shared_ptr<FileItem>;
 using FileItem_WeakPtr = std::weak_ptr<FileItem>;
+using FileItem_UniquePtr = std::unique_ptr<FileItem>;
 
 #endif // FILEITEM_FWD_H
