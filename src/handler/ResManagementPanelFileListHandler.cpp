@@ -111,11 +111,12 @@ void ResManagementPanelFileListHandler::Init()
 	}
 
 	ui->slider->setRange(0, 16 * 7);
-	slider_ = ui->slider;
+	search_key_edit_ = ui->search_key_edit;
 
 	connect(file_tree_view_, &QTreeView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileItemDoubleClicked);
 	connect(file_list_view_, &QListView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileItemDoubleClicked);
-	connect(slider_, &QSlider::valueChanged, this, &ResManagementPanelFileListHandler::OnSliderValueChanged);
+	connect(ui->slider, &QSlider::valueChanged, this, &ResManagementPanelFileListHandler::OnSliderValueChanged);
+	connect(search_key_edit_, &QLineEdit::textChanged, this, &ResManagementPanelFileListHandler::OnSearchKeyEditTextChanged);
 }
 
 void ResManagementPanelFileListHandler::AfterInited()
@@ -148,23 +149,10 @@ void ResManagementPanelFileListHandler::ShowFilesInTargetDir(const FileItem_Shar
 		return;
 	}
 
-	QString dir_path = target_dir->FilePath();
-	if (dir_path.isEmpty() == false &&
-		QFileInfo(dir_path).isDir())
+	CreateFileTreeRootItem();
+	if (current_file_tree_root_item_ == nullptr)
 	{
-		current_file_tree_root_item_ = FileItemFactory::CreateFileItem(dir_path, QFileInfo(dir_path).fileName());
-		current_file_tree_root_item_->BuildTree(QDir::Dirs | QDir::Files, false);
-	}
-	else
-	{
-		current_file_tree_root_item_ = FileItemFactory::CreateFileItem("", "");
-
-		auto child_list = target_dir->ChildList(false);
-		for (const auto& child : child_list)
-		{
-			QString file_path = child->FilePath();
-			current_file_tree_root_item_->AppendChild(FileItemFactory::CreateFileItem(file_path, QFileInfo(file_path).fileName()));
-		}
+		return;
 	}
 
 	QVector<QString> header_column_names = {
@@ -193,6 +181,118 @@ void ResManagementPanelFileListHandler::ShowFilesInTargetDir(const FileItem_Shar
 	}
 }
 
+void ResManagementPanelFileListHandler::CreateFileTreeRootItem()
+{
+	auto target_dir = target_dir_.lock();
+	if (target_dir == nullptr)
+	{
+		return;
+	}
+
+	QString dir_path = target_dir->FilePath();
+	if (dir_path.isEmpty() == false &&
+		QFileInfo(dir_path).isDir())
+	{
+		current_file_tree_root_item_ = FileItemFactory::CreateFileItem(dir_path, QFileInfo(dir_path).fileName());
+		if (ShouldSearchFiles())
+		{
+			current_file_tree_root_item_->AppendChildList(SearchFilesInDir(dir_path));
+		}
+		else
+		{
+			current_file_tree_root_item_->BuildTree(QDir::Dirs | QDir::Files, false);
+		}
+	}
+	else
+	{
+		current_file_tree_root_item_ = FileItemFactory::CreateFileItem("", "");
+
+		auto child_list = target_dir->ChildList(false);
+
+		if (ShouldSearchFiles())
+		{
+			current_file_tree_root_item_->AppendChildList(SearchFilesFromFileItemList(child_list));
+		}
+		else
+		{
+			for (const auto& child : child_list)
+			{
+				QString file_path = child->FilePath();
+				current_file_tree_root_item_->AppendChild(FileItemFactory::CreateFileItem(file_path, QFileInfo(file_path).fileName()));
+			}
+		}
+	}
+}
+
+bool ResManagementPanelFileListHandler::ShouldSearchFiles() const
+{
+	return search_key_word_.isEmpty() == false;
+}
+
+QList<FileItem_SharedPtr> ResManagementPanelFileListHandler::SearchFilesInDir(const QString& dir_path)
+{
+	QList<FileItem_SharedPtr> searched_file_item_list;
+
+	QDir dir(dir_path);
+	QFileInfoList file_info_list = dir.entryInfoList(QDir::Dirs | QDir::Files , QDir::DirsFirst);
+	for (const auto& file_info : file_info_list)
+	{
+		const QString file_name = file_info.fileName();
+		if (file_name == "." | file_name == "..")
+		{
+			continue;
+		}
+
+		if (TestFileInfoForSearching(file_info))
+		{
+			auto file_item = FileItemFactory::CreateFileItem(file_info.filePath(), file_name);
+			searched_file_item_list.append(file_item);
+		}
+
+		if (file_info.isDir())
+		{
+			searched_file_item_list.append(SearchFilesInDir(file_info.filePath()));
+		}
+	}
+
+	return searched_file_item_list;
+}
+
+QList<FileItem_SharedPtr> ResManagementPanelFileListHandler::SearchFilesFromFileItemList(const QList<FileItem_SharedPtr>& file_item_list)
+{
+	QList<FileItem_SharedPtr> searched_file_item_list;
+
+	for (const auto& file_item : file_item_list)
+	{
+		QString file_path = file_item->FilePath();
+		QFileInfo file_info(file_path);
+		if (TestFileInfoForSearching(file_info))
+		{
+			searched_file_item_list.append(FileItemFactory::CreateFileItem(file_path, file_info.fileName()));
+		}
+
+		if (file_info.isDir())
+		{
+			searched_file_item_list.append(SearchFilesInDir(file_path));
+		}
+	}
+
+	return searched_file_item_list;
+}
+
+bool ResManagementPanelFileListHandler::TestFileInfoForSearching(const QFileInfo& file_info)
+{
+	QString file_path = file_info.filePath();
+
+	if (search_key_word_.isEmpty() == false
+		&& file_info.fileName().contains(search_key_word_, case_senditivity_of_key_word_))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void ResManagementPanelFileListHandler::OnImageFileIconLoaded(const QIcon& icon, const QString& file_path)
 {
 	Q_UNUSED(icon);
@@ -209,6 +309,12 @@ void ResManagementPanelFileListHandler::OnImageFileIconLoaded(const QIcon& icon,
 
 void ResManagementPanelFileListHandler::OnFileItemDoubleClicked(const QModelIndex& index)
 {
+	search_key_word_.clear();
+	if (search_key_edit_)
+	{
+		search_key_edit_->setText(search_key_word_);
+	}
+
 	auto dir_tree_handler = SiblingHandler<ResManagementPanelDirTreeHandler>();
 	if (dir_tree_handler == nullptr)
 	{
@@ -251,4 +357,18 @@ void ResManagementPanelFileListHandler::OnSliderValueChanged(int value)
 		file_list_view_->setIconSize(QSize(size, size));
 		file_list_view_->setGridSize(QSize(size + s_icon_grid_delta_x, size + s_icon_grid_delta_y));
 	}
+}
+
+void ResManagementPanelFileListHandler::OnSearchKeyEditTextChanged(const QString& text)
+{
+	if (search_key_word_ == text)
+	{
+		return;
+	}
+
+	search_key_word_ = text;
+
+	auto target_dir = target_dir_.lock();
+	target_dir_.reset();
+	this->ShowFilesInTargetDir(target_dir);
 }

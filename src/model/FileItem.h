@@ -2,6 +2,7 @@
 #define FILEITEM_H
 #include <unordered_map>
 #include <QDir>
+#include <QList>
 #include <QObject>
 #include <QVariant>
 #include <QVector>
@@ -30,6 +31,7 @@ public:
 	void								BuildTree(QDir::Filters filters, bool recursively = true);
 
 	void								AppendChild(const FileItem_SharedPtr& child);
+	void								AppendChildList(const QList<FileItem_SharedPtr>& child_list);
 	FileItem_SharedPtr					ChildAt(int index) const;
 	int									CountOfChildren() const;
 

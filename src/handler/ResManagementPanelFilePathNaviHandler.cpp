@@ -42,8 +42,7 @@ void ResManagementPanelFilePathNaviHandler::Reset()
 
 void ResManagementPanelFilePathNaviHandler::ShowFilePath(const FileItem_SharedPtr& file_item)
 {
-	auto current_file_item = current_file_item_.lock();
-    if (file_item == current_file_item)
+    if (file_item == current_file_item_.lock())
 	{
 		return;
 	}

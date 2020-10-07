@@ -112,6 +112,14 @@ void FileItem::AppendChild(const FileItem_SharedPtr& child)
 	}
 }
 
+void FileItem::AppendChildList(const QList<FileItem_SharedPtr>& child_list)
+{
+	for (const auto& child : child_list)
+	{
+		this->AppendChild(child);
+	}
+}
+
 FileItem_SharedPtr FileItem::ChildAt(int index) const
 {
 	if (index >= 0 && index < children_.size())
