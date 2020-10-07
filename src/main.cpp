@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 	if (project_res_dir.isEmpty())
 	{
 		QMessageBox::warning(nullptr, "warning", R"(the project_res_dir is empty.
-Format: ResManagement.exe -p $project_res_dir -b builtin_res_dir)");
+format: ResManagement.exe -p $project_res_dir -b builtin_res_dir)");
 
 		return 0;
 	}

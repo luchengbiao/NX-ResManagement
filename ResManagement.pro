@@ -28,6 +28,7 @@ HEADERS += \
     src/panel/ResManagementPanel.h \
     src/handler/ResManagementPanelHandler.h \
     src/handler/ResManagementPanelHandlerTypes.h \
+    src/panel/SearchSettingForm.h \
     src/utils/FunctionPerformer.h
 
 SOURCES += \
@@ -41,13 +42,15 @@ SOURCES += \
     src/model/refined_fileitems/MtgFileItem.cpp \
     src/panel/ResManagementPanel.cpp \
     src/model/FileTreeModel.cpp \
+    src/panel/SearchSettingForm.cpp \
     src/utils/FunctionPerformer.cpp
 
 RESOURCES += \
     res/ResManagement.qrc
 
 FORMS += \
-    res/ResManagementPanel.ui
+    res/ResManagementPanel.ui \
+    res/SearchSettingForm.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

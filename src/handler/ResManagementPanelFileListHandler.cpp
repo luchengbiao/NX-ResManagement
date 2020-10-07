@@ -1,4 +1,6 @@
 #include "ResManagementPanelFileListHandler.h"
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QFileIconProvider>
 #include <QListView>
 #include <QMimeDatabase>
@@ -9,6 +11,7 @@
 #include "src/model/FileItem.h"
 #include "src/model/FileItemFactory.h"
 #include "src/model/FileTreeModel.h"
+#include "src/panel/SearchSettingForm.h"
 #include "src/utils/FunctionPerformer.h"
 #include "ui_ResManagementPanel.h"
 
@@ -112,18 +115,17 @@ void ResManagementPanelFileListHandler::Init()
 
 	ui->slider->setRange(0, 16 * 7);
 	search_key_edit_ = ui->search_key_edit;
+	search_setting_btn_ = ui->search_setting_btn;
 
 	connect(file_tree_view_, &QTreeView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileItemDoubleClicked);
 	connect(file_list_view_, &QListView::doubleClicked, this, &ResManagementPanelFileListHandler::OnFileItemDoubleClicked);
 	connect(ui->slider, &QSlider::valueChanged, this, &ResManagementPanelFileListHandler::OnSliderValueChanged);
 	connect(search_key_edit_, &QLineEdit::textChanged, this, &ResManagementPanelFileListHandler::OnSearchKeyEditTextChanged);
+	connect(search_setting_btn_, &QToolButton::clicked, this, &ResManagementPanelFileListHandler::OnSearchSettingBtnClicked);
 }
 
 void ResManagementPanelFileListHandler::AfterInited()
-{
-	// test code
-	//this->ShowFilesInTargetDir(FileItemFactory::CreateFileItem(R"(C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res\test)", "test"));
-}
+{}
 
 void ResManagementPanelFileListHandler::Reset()
 {
@@ -226,7 +228,7 @@ void ResManagementPanelFileListHandler::CreateFileTreeRootItem()
 
 bool ResManagementPanelFileListHandler::ShouldSearchFiles() const
 {
-	return search_key_word_.isEmpty() == false;
+	return !(search_key_word_.isEmpty() && file_suffix_set_to_search_.isEmpty());
 }
 
 QList<FileItem_SharedPtr> ResManagementPanelFileListHandler::SearchFilesInDir(const QString& dir_path)
@@ -282,10 +284,22 @@ QList<FileItem_SharedPtr> ResManagementPanelFileListHandler::SearchFilesFromFile
 
 bool ResManagementPanelFileListHandler::TestFileInfoForSearching(const QFileInfo& file_info)
 {
-	QString file_path = file_info.filePath();
+	if (file_suffix_set_to_search_.isEmpty() == false)
+	{
+		if (file_info.isFile() == false)
+		{
+			return false;
+		}
+		
+		QString suffix = file_info.completeSuffix().toLower();
+		if (file_suffix_set_to_search_.contains(suffix) == false)
+		{
+			return false;
+		}
+	}
 
-	if (search_key_word_.isEmpty() == false
-		&& file_info.fileName().contains(search_key_word_, case_senditivity_of_key_word_))
+	if (search_key_word_.isEmpty()
+		|| file_info.fileName().contains(search_key_word_, case_senditivity_of_key_word_))
 	{
 		return true;
 	}
@@ -371,4 +385,44 @@ void ResManagementPanelFileListHandler::OnSearchKeyEditTextChanged(const QString
 	auto target_dir = target_dir_.lock();
 	target_dir_.reset();
 	this->ShowFilesInTargetDir(target_dir);
+}
+
+void ResManagementPanelFileListHandler::OnSearchSettingBtnClicked()
+{
+	if (!search_setting_form_)
+	{
+		search_setting_form_.reset(new SearchSettingForm());
+		search_setting_form_->setWindowFlag(Qt::WindowStaysOnTopHint);
+		search_setting_form_->setWindowFlag(Qt::WindowMinMaxButtonsHint, false);
+		search_setting_form_->setWindowFlag(Qt::WindowContextHelpButtonHint);
+	}
+
+	if (search_setting_btn_)
+	{
+		QPoint pos(search_setting_btn_->width() / 2, -50);
+		pos = search_setting_btn_->mapToGlobal(pos);
+
+		pos.setX(pos.x() - search_setting_form_->width() / 2);
+		pos.setY(pos.y() - search_setting_form_->height());
+
+		QRect desktop_rc = QApplication::desktop()->availableGeometry();
+		if (pos.x() < desktop_rc.left())
+		{
+			pos.setX(desktop_rc.left());
+		}
+
+		if (pos.x() + search_setting_form_->width() > desktop_rc.right())
+		{
+			pos.setX(desktop_rc.right() - search_setting_form_->width());
+		}
+
+		if (pos.y() < desktop_rc.top())
+		{
+			pos.setY(desktop_rc.top());
+		}
+
+		search_setting_form_->move(pos);
+	}
+
+	search_setting_form_->show();
 }

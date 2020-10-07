@@ -1,5 +1,6 @@
 #ifndef RESMANAGEMENTPANELFILELISTHANDLER_H
 #define RESMANAGEMENTPANELFILELISTHANDLER_H
+#include <QSet>
 #include "ResManagementPanelHandler.h"
 #include "src/model/FileItem_Fwd.h"
 
@@ -8,8 +9,10 @@ class QFileInfo;
 class QLineEdit;
 class QListView;
 class QModelIndex;
+class QToolButton;
 class QTreeView;
 class QStackedLayout;
+class SearchSettingForm;
 
 class ResManagementPanelFileListHandler : public ResManagementPanelHandlerWithType<ResManagementPanelHandlerType::FileList>
 {
@@ -38,6 +41,7 @@ private Q_SLOTS:
 	void							OnFileItemDoubleClicked(const QModelIndex& index);
 	void							OnSliderValueChanged(int value);
 	void							OnSearchKeyEditTextChanged(const QString& text);
+	void							OnSearchSettingBtnClicked();
 
 private:
 	FileItem_WeakPtr				target_dir_;
@@ -49,11 +53,15 @@ private:
 
 	QString							search_key_word_;
 	Qt::CaseSensitivity				case_senditivity_of_key_word_{ Qt::CaseInsensitive };
+	QSet<QString>					file_suffix_set_to_search_;
 
 	QPointer<QStackedLayout>		stacked_layout_;
 	QPointer<QTreeView>				file_tree_view_;
 	QPointer<QListView>				file_list_view_;
 	QPointer<QLineEdit>				search_key_edit_;
+
+	QPointer<QToolButton>			search_setting_btn_;
+	QScopedPointer<SearchSettingForm> search_setting_form_;
 };
 
 #endif // RESMANAGEMENTPANELFILELISTHANDLER_H
