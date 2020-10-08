@@ -24,7 +24,10 @@ HEADERS += \
     src/model/FileItem.h \
     src/model/FileItem_Fwd.h \
     src/model/FileTreeModel.h \
+    src/model/FileType.h \
+    src/model/refined_fileitems/FileItemOnlyWithName.h \
     src/model/refined_fileitems/MtgFileItem.h \
+    src/model/refined_fileitems/NfxFileItem.h \
     src/panel/ResManagementPanel.h \
     src/handler/ResManagementPanelHandler.h \
     src/handler/ResManagementPanelHandlerTypes.h \
@@ -39,7 +42,10 @@ SOURCES += \
     src/model/FileItem.cpp \
     src/model/FileItemFactory.cpp \
     src/model/FileTreeModel.cpp \
+    src/model/FileType.cpp \
+    src/model/refined_fileitems/FileItemOnlyWithName.cpp \
     src/model/refined_fileitems/MtgFileItem.cpp \
+    src/model/refined_fileitems/NfxFileItem.cpp \
     src/panel/ResManagementPanel.cpp \
     src/model/FileTreeModel.cpp \
     src/panel/SearchSettingForm.cpp \

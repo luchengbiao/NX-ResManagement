@@ -3,6 +3,7 @@
 #include <QSet>
 #include "ResManagementPanelHandler.h"
 #include "src/model/FileItem_Fwd.h"
+#include "src/model/FileType.h"
 
 class FileTreeModel;
 class QFileInfo;
@@ -37,11 +38,17 @@ private:
 
 	void							OnImageFileIconLoaded(const QIcon& icon, const QString& file_path);
 
+	void							Reload();
+
 private Q_SLOTS:
 	void							OnFileItemDoubleClicked(const QModelIndex& index);
 	void							OnSliderValueChanged(int value);
 	void							OnSearchKeyEditTextChanged(const QString& text);
 	void							OnSearchSettingBtnClicked();
+
+	void							OnCaseSenditivityChanged(Qt::CaseSensitivity);	
+	void							OnFileTypeChecked(FileType);
+	void							OnFileTypeUnchecked(FileType);
 
 private:
 	FileItem_WeakPtr				target_dir_;

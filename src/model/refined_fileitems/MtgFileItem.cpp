@@ -1,6 +1,7 @@
 #include "MtgFileItem.h"
 #include <QFile>
 #include <QXmlStreamReader>
+#include "FileItemOnlyWithName.h"
 #include "src/model/FileItemFactory.h"
 
 const QString MtgFileItem::Suffix = "mtg";
@@ -16,7 +17,7 @@ std::shared_ptr<MtgFileItem> MtgFileItem::Create(const QString& file_path,
 		MaterialGroup material_group = ExtractMaterialGroupFromMtgFile(file_path);
 		for (const auto& item : material_group.items_)
 		{
-			file_item->AppendChild(MtgMaterialFileItem::Create(item.name_, item.name_));
+            file_item->AppendChild(FileItemOnlyWithName::Create(item.name_, item.name_));
 		}
 	}
 
@@ -89,26 +90,3 @@ MtgFileItem::MtgFileItem(const QString& file_path,
 						 const FileItem_SharedPtr& parent)
 	: FileItem(file_path, display_name, parent)
 {}
-
-std::shared_ptr<MtgMaterialFileItem> MtgMaterialFileItem::Create(const QString& file_path,
-																 const QString& display_name,
-																 const FileItem_SharedPtr& parent)
-{
-	return std::shared_ptr<MtgMaterialFileItem>(new MtgMaterialFileItem(file_path, display_name, parent));
-}
-
-MtgMaterialFileItem::MtgMaterialFileItem(const QString& file_path,
-										 const QString& display_name,
-										 const FileItem_SharedPtr& parent)
-	: FileItem(file_path, display_name, parent)
-{}
-
-QVariant MtgMaterialFileItem::DataAtColumn(int column)
-{
-	if (column == 0)
-	{
-		return QVariant(display_name_);
-	}
-
-	return QVariant();
-}

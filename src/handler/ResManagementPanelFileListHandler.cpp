@@ -321,6 +321,13 @@ void ResManagementPanelFileListHandler::OnImageFileIconLoaded(const QIcon& icon,
 	}
 }
 
+void ResManagementPanelFileListHandler::Reload()
+{
+	auto target_dir = target_dir_.lock();
+	target_dir_.reset();
+	this->ShowFilesInTargetDir(target_dir);
+}
+
 void ResManagementPanelFileListHandler::OnFileItemDoubleClicked(const QModelIndex& index)
 {
 	search_key_word_.clear();
@@ -382,9 +389,7 @@ void ResManagementPanelFileListHandler::OnSearchKeyEditTextChanged(const QString
 
 	search_key_word_ = text;
 
-	auto target_dir = target_dir_.lock();
-	target_dir_.reset();
-	this->ShowFilesInTargetDir(target_dir);
+	this->Reload();
 }
 
 void ResManagementPanelFileListHandler::OnSearchSettingBtnClicked()
@@ -395,15 +400,18 @@ void ResManagementPanelFileListHandler::OnSearchSettingBtnClicked()
 		search_setting_form_->setWindowFlag(Qt::WindowStaysOnTopHint);
 		search_setting_form_->setWindowFlag(Qt::WindowMinMaxButtonsHint, false);
 		search_setting_form_->setWindowFlag(Qt::WindowContextHelpButtonHint);
+
+		connect(search_setting_form_.get(), &SearchSettingForm::CaseSenditivityChanged, this, &ResManagementPanelFileListHandler::OnCaseSenditivityChanged);
+		connect(search_setting_form_.get(), &SearchSettingForm::FileTypeChecked, this, &ResManagementPanelFileListHandler::OnFileTypeChecked);
+		connect(search_setting_form_.get(), &SearchSettingForm::FileTypeUnchecked, this, &ResManagementPanelFileListHandler::OnFileTypeUnchecked);
 	}
 
 	if (search_setting_btn_)
 	{
-		QPoint pos(search_setting_btn_->width() / 2, -50);
-		pos = search_setting_btn_->mapToGlobal(pos);
+		QPoint pos = search_setting_btn_->mapToGlobal(QPoint(0, 0));
 
-		pos.setX(pos.x() - search_setting_form_->width() / 2);
-		pos.setY(pos.y() - search_setting_form_->height());
+		pos.setX(pos.x() - search_setting_form_->width());
+		pos.setY(pos.y() - search_setting_form_->height() / 2);
 
 		QRect desktop_rc = QApplication::desktop()->availableGeometry();
 		if (pos.x() < desktop_rc.left())
@@ -425,4 +433,46 @@ void ResManagementPanelFileListHandler::OnSearchSettingBtnClicked()
 	}
 
 	search_setting_form_->show();
+}
+
+void ResManagementPanelFileListHandler::OnCaseSenditivityChanged(Qt::CaseSensitivity case_sensitivity)
+{
+	if (case_senditivity_of_key_word_ == case_sensitivity)
+	{
+		return;
+	}
+
+	case_senditivity_of_key_word_ = case_sensitivity;
+	if (search_key_word_.isEmpty() == false)
+	{
+		this->Reload();
+	}
+}
+
+void ResManagementPanelFileListHandler::OnFileTypeChecked(FileType file_type)
+{
+	QStringList suffix_list = FileTypeHelper::SuffixListByType(file_type);
+	if (suffix_list.isEmpty() == false)
+	{
+		const int old_size = file_suffix_set_to_search_.size();
+		file_suffix_set_to_search_ |= suffix_list.toSet();
+		if (file_suffix_set_to_search_.size() != old_size)
+		{
+			this->Reload();
+		}
+	}
+}
+
+void ResManagementPanelFileListHandler::OnFileTypeUnchecked(FileType file_type)
+{
+	QStringList suffix_list = FileTypeHelper::SuffixListByType(file_type);
+	if (suffix_list.isEmpty() == false)
+	{
+		const int old_size = file_suffix_set_to_search_.size();
+		file_suffix_set_to_search_ -= suffix_list.toSet();
+		if (file_suffix_set_to_search_.size() != old_size)
+		{
+			this->Reload();
+		}
+	}
 }

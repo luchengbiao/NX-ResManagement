@@ -1,0 +1,3 @@
+命令行格式: ResManagement.exe -p $project_res_dir -b builtin_res_dir
+形如:
+ResManagement.exe  -p  C:\Users\luchengbiao\AppData\Local\neox-hub\demo_art_basic_tutorial\res -b C:\Users\luchengbiao\AppData\Local\neox-hub\NeoX-Engine_2020.09.01s1(Jun.Stable)\Core-Editor\win32_editor\packages\builtin\res

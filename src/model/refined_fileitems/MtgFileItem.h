@@ -32,21 +32,4 @@ private:
 				const FileItem_SharedPtr& parent = nullptr);
 };
 
-class MtgMaterialFileItem : public FileItem
-{
-	Q_OBJECT
-
-public:
-	static std::shared_ptr<MtgMaterialFileItem>	Create(const QString& file_path,
-													   const QString& display_name,
-													   const FileItem_SharedPtr& parent = nullptr);
-
-private:
-	MtgMaterialFileItem(const QString& file_path,
-						const QString& display_name,
-						const FileItem_SharedPtr& parent = nullptr);
-
-	virtual QVariant	DataAtColumn(int column) override;
-};
-
 #endif // MTGFILEITEM_H
